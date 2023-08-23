@@ -1,0 +1,1 @@
+"""Init file for EstuResidencia's backend"""

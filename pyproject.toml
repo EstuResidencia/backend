@@ -1,20 +1,15 @@
 [tool.poetry]
-name = "judge-api"
-version = "0.0.0"
-description = "This is an API that connects Minerva with a code judge."
-authors = ["Cristian Camilo Henao Rojas <crhenaor@unal.edu.co>"]
+name = "backend"
+version = "0.1.0"
+description = "Backend for EstuResidencia"
+authors = ["Estebanano Gracia Caremona <esgarciac@unal.edu.co>"]
+readme = "README.md"
 
 [tool.poetry.dependencies]
-python = ">=3.8,<=3.12"
-Flask = "^2.3.2"
+python = "^3.8"
+Django = "^4.2.4"
 
-
-[tool.poetry.dev-dependencies]
-coverage = "^7.3.0"
-pre-commit = "^3.3.3"
-pytest-flask = "^1.2.0"
-pytest = "^7.4.0"
 
 [build-system]
-requires = ["poetry-core>=1.0.0"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
