@@ -1,0 +1,1 @@
+"""Module with testing's resources (e.g. constants)"""
