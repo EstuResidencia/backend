@@ -1,11 +1,11 @@
 [tool.poetry]
-name = "judge-api"
+name = "backend"
 version = "0.0.0"
-description = "This is an API that connects Minerva with a code judge."
-authors = ["Cristian Camilo Henao Rojas <crhenaor@unal.edu.co>"]
+description = "backend code for EstuResidencia."
+authors = ["Esteban García Carmona <esgarciac@unal.edu.co>"]
 
 [tool.poetry.dependencies]
-python = ">=3.8,<=3.12"
+python = ">=3.8,<3.12"
 Flask = "^2.3.2"
 
 
