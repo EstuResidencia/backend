@@ -1,1 +1,0 @@
-"""pytests fixtures, hooks and plugins"""
