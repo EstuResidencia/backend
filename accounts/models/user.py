@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from .manager import UserManager
 
 
 class User(AbstractUser):
@@ -18,11 +19,21 @@ class User(AbstractUser):
     correo = models.EmailField(max_length=50, unique=True)
     tipo_documento = models.CharField(max_length=2, blank=True, null=True)
     documento = models.IntegerField(unique=True, blank=True, null=True)
-    contrasena = models.CharField() #password
-    celular = models.CharField(blank=True, null=True)
+    password = models.CharField(db_column="contrasena")
+    celular = models.CharField()
     foto = models.ImageField(blank=True, null=True)
     rol = models.CharField(max_length=1, choices=ROLES_CHOICES, blank=True, null=True)
     validado = models.BooleanField(default=False)
+
+    # Remove username field and use email as unique identifier
+    username = None
+    first_name = None
+    last_name = None
+    USERNAME_FIELD = "correo"
+    REQUIRED_FIELDS = ["nombre", "celular"] # Maybe faltan
+
+    # Use custom user manager
+    objects = UserManager()
 
     class Meta:
         constraints = [
