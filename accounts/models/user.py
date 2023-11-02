@@ -21,7 +21,7 @@ class User(AbstractUser):
     documento = models.IntegerField(unique=True, blank=True, null=True)
     password = models.CharField(db_column="contrasena")
     celular = models.CharField()
-    foto = models.ImageField(blank=True, null=True)
+    foto = models.BinaryField(blank=True, null=True)
     rol = models.CharField(max_length=1, choices=ROLES_CHOICES, blank=True, null=True)
     validado = models.BooleanField(default=False)
 
