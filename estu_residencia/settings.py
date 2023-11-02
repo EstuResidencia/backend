@@ -25,10 +25,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%br-)m2(vimtw@b34hetzvny6aejbfgd%z7yx$#=0m^77*norw'
+SECRET_KEY = os.environ.get("SECRET_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = "RENDER" not in os.environ
 
 ALLOWED_HOSTS = []
 
@@ -49,7 +49,8 @@ DEPENDENCIES_APPS = [
 ]
 
 ESTU_RESIDENCIA_APPS = [
-
+    'accounts',
+    'arriendos',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + DEPENDENCIES_APPS + ESTU_RESIDENCIA_APPS
@@ -84,6 +85,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'estu_residencia.wsgi.application'
 
+AUTH_USER_MODEL = "accounts.User"
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases

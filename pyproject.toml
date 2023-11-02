@@ -2,7 +2,7 @@
 name = "backend"
 version = "0.1.0"
 description = "Backend for EstuResidencia"
-authors = ["Estebanano Gracia Caremona <esgarciac@unal.edu.co>"]
+authors = ["Sergio <esgarciac@unal.edu.co>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
@@ -13,6 +13,7 @@ coreapi = "^2.3.3"
 dj-database-url = "^2.1.0"
 psycopg2-binary = "^2.9.9"
 python-dotenv = "^1.0.0"
+pillow = "^10.1.0"
 
 
 [build-system]
