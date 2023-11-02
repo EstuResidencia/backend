@@ -38,7 +38,6 @@ class CustomUserAdmin(UserAdmin):
                                     "password",
                                     "celular",
                                     "rol",
-                                    "foto",
                                     "validado")}),
         (
             "Permissions",
@@ -59,7 +58,6 @@ class CustomUserAdmin(UserAdmin):
                     "password2",
                     "celular",
                     "rol",
-                    "foto",
                     "validado",
                     "is_staff",
                     "is_active",

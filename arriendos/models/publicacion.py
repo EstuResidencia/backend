@@ -3,35 +3,35 @@ from django.db import models
 
 class Publicacion(models.Model):
     ESTADOS_CHOICES = [
-        ("P", "PENDIENTE"),
-        ("A", "ACTIVA"),
-        ("O", "OCUPADA"),
-        ("R", "RECHAZADA"),
+        (1, "PENDIENTE"),
+        (2, "ACTIVA"),
+        (3, "OCUPADA"),
+        (4, "RECHAZADA"),
     ]
 
     TIPO_RESIDENCIA_CHOICES = [
-        ("A", "APARTAMENTO"),
-        ("C", "CASA"),
-        ("H", "HABITACION"),
+        (1, "APARTAMENTO"),
+        (2, "CASA"),
+        (3, "HABITACION"),
     ]
 
     COMUNA_CHOICES = [
-        ("1", "POPULAR"),
-        ("2", "SANTA CRUZ"),
-        ("3", "MANRIQUE"),
-        ("4", "ARANJUEZ"),
-        ("5", "CASTILLA"),
-        ("6", "DOCE DE OCTUBRE"),
-        ("7", "ROBLEDO"),
-        ("8", "VILLA HERMOSA"),
-        ("9", "BUENOS AIRES"),
-        ("10", "LA CANDELARIA"),
-        ("11", "LAURELES ESTADIO"),
-        ("12", "LA AMERICA"),
-        ("13", "SAN JAVIER"),
-        ("14", "EL POBLADO"),
-        ("15", "GUAYABAL"),
-        ("16", "BELEN"),
+        (1, "POPULAR"),
+        (2, "SANTA CRUZ"),
+        (3, "MANRIQUE"),
+        (4, "ARANJUEZ"),
+        (5, "CASTILLA"),
+        (6, "DOCE DE OCTUBRE"),
+        (7, "ROBLEDO"),
+        (8, "VILLA HERMOSA"),
+        (9, "BUENOS AIRES"),
+        (10, "LA CANDELARIA"),
+        (11, "LAURELES ESTADIO"),
+        (12, "LA AMERICA"),
+        (13, "SAN JAVIER"),
+        (14, "EL POBLADO"),
+        (15, "GUAYABAL"),
+        (16, "BELEN"),
     ]
 
     id = models.AutoField(
@@ -54,32 +54,30 @@ class Publicacion(models.Model):
         blank=True
     )
     descripcion = models.CharField()
-    estado = models.CharField(
-        max_length=1,
+    estado = models.IntegerField(
         choices=ESTADOS_CHOICES,
-        default="P"
+        default=1
     )
     direccion = models.CharField(max_length=100)
-    tipo_residencia = models.CharField(
-        max_length=1,
+    tipo_residencia = models.IntegerField(
         choices=TIPO_RESIDENCIA_CHOICES
     )
     canon_cop = models.IntegerField()
     area_m2 = models.IntegerField()
     habitaciones = models.IntegerField(default=1)
     piso = models.IntegerField(default=1)
-    comuna = models.CharField(max_length=2, choices=COMUNA_CHOICES)
+    comuna = models.IntegerField(choices=COMUNA_CHOICES)
     estado_cambiado = models.BooleanField(default=True)
 
 
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=(models.Q(estado__in=["P", "A", "O", "R"])),
+                check=(models.Q(estado__in=[1, 2, 3, 4])),
                 name="valid_estado_publicacion",
             ),
             models.CheckConstraint(
-                check=(models.Q(tipo_residencia__in=["A", "C", "H"])),
+                check=(models.Q(tipo_residencia__in=[1, 2, 3])),
                 name="valid_tipo_residencia",
             )
         ]
