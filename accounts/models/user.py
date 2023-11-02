@@ -5,8 +5,8 @@ from .manager import UserManager
 
 class User(AbstractUser):
     ROLES_CHOICES = [
-        ("A", "ARRENDADOR"),
-        ("E", "ESTUDIANTE"),
+        (1, "ARRENDADOR"),
+        (2, "ESTUDIANTE"),
     ]
     usuario_id = models.BigAutoField(
         auto_created=True,
@@ -22,7 +22,7 @@ class User(AbstractUser):
     password = models.CharField(db_column="contrasena")
     celular = models.CharField()
     foto = models.BinaryField(blank=True, null=True)
-    rol = models.CharField(max_length=1, choices=ROLES_CHOICES, blank=True, null=True)
+    rol = models.IntegerField(choices=ROLES_CHOICES, blank=True, null=True)
     validado = models.BooleanField(default=False)
 
     # Remove username field and use email as unique identifier
@@ -42,7 +42,7 @@ class User(AbstractUser):
                 name="valid_tipo_documento",
             ),
             models.CheckConstraint(
-                check=models.Q(rol__in=["A", "E"]),
+                check=models.Q(rol__in=[1, 2]),
                 name="valid_rol",
             )
         ]
