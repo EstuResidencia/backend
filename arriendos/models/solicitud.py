@@ -4,10 +4,10 @@ from arriendos.models.publicacion import Publicacion
 
 class Solicitud(models.Model):
     ESTADOS_CHOICES = [
-        ("P", "PENDIENTE"),
-        ("A", "APROBADA"),
-        ("C", "CANCELADA"),
-        ("R", "RECHAZADA"),
+        (1, "PENDIENTE"),
+        (2, "APROBADA"),
+        (3, "CANCELADA"),
+        (4, "RECHAZADA"),
     ]
 
     id = models.AutoField(
@@ -29,7 +29,7 @@ class Solicitud(models.Model):
         null=False,
         related_name="solicitudes"
     )
-    estado = models.CharField(max_length=1, choices=ESTADOS_CHOICES, default="P")
+    estado = models.IntegerField(choices=ESTADOS_CHOICES, default=1)
     pagado = models.BooleanField(default=False)
     fecha = models.DateField(auto_now_add=True)
     estado_cambiado = models.BooleanField(default=True)
@@ -37,7 +37,7 @@ class Solicitud(models.Model):
     class Meta:
         constraints = [
             models.CheckConstraint(
-                check=models.Q(estado__in=["P", "A", "C", "R"]),
+                check=models.Q(estado__in=[1, 2, 3, 4]),
                 name="valid_estado_solicitud",
             ),
         ]
