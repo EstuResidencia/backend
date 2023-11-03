@@ -2,6 +2,7 @@ from django.http import JsonResponse
 from rest_framework.decorators import api_view
 from rest_framework import status
 
+
 @api_view(["GET", "POST"])
 def create_read_resena(request, publicacion_id: int) -> JsonResponse:
     if request.method == "GET":
