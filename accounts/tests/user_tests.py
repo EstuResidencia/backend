@@ -119,7 +119,7 @@ class LogoutTestCase(TestCase):
             password="calypso"
         )
 
-        self.csrf_token = self.client.login(correo=self.user.correo, password="calypso")
+        self.client.login(correo=self.user.correo, password="calypso")
 
     def test_logout_correct(self):
         response = self.client.post(path="/logout/")
@@ -127,4 +127,15 @@ class LogoutTestCase(TestCase):
         self.assertEqual(
             loads(response.content),
             {"message": "User logged out successfully"}
+        )
+
+    def test_logout_unauthorized(self):
+        self.client.logout()
+        response = self.client.post(path="/logout/")
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            loads(response.content),
+            {
+                "detail": "Authentication credentials were not provided."
+            }
         )
