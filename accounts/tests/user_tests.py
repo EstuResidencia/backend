@@ -6,10 +6,10 @@ from json import loads
 from ..models import User
 
 
-# TODO: fix login and logout tests
 class RegisterTestCase(TestCase):
 
     def setUp(self):
+        self.client = APIClient()
         self.user_data = {
             "nombre": "Calypso",
             "correo": "calypso@unal.edu.co",
@@ -56,7 +56,7 @@ class RegisterTestCase(TestCase):
 class LoginTestCase(TestCase):
 
     def setUp(self):
-
+        self.client = APIClient()
         self.user = User.objects.create(
             nombre="Cassandra",
             correo="cassandra@unal.edu.co",
@@ -66,14 +66,11 @@ class LoginTestCase(TestCase):
 
         self.login_data = {
             "correo": self.user.correo,
-            "password": self.user.password
+            "password": "cassandra"
         }
 
     def test_login_correct(self):
-        user = User.objects.last()
-        print(f"correo: {user.correo}\npassword: {user.password}",)
         response = self.client.post(path="/login/", data=self.login_data, format="json")
-        print(response.content)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
             loads(response.content)["correo"],
@@ -121,17 +118,13 @@ class LogoutTestCase(TestCase):
             celular="310495520",
             password="calypso"
         )
-        # self.client.login(correo=self.user.correo, password=self.user.password)
-        self.csrf_token = self.client.login(correo=self.user.correo, password=self.user.password)
-        # self.csrf_token = self.client.cookies["csrftoken"]
 
+        self.csrf_token = self.client.login(correo=self.user.correo, password="calypso")
 
     def test_logout_correct(self):
-        print("csrf_token: ", self.csrf_token)
         response = self.client.post(path="/logout/")
-        print(response.content)
-        # self.assertEqual(response.status_code, status.HTTP_200_OK)
-        # self.assertEqual(
-        #     loads(response.content),
-        #     {"message": "User logged out successfully"}
-        # )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            loads(response.content),
+            {"message": "User logged out successfully"}
+        )
