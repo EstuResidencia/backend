@@ -35,3 +35,13 @@ class UserManager(BaseUserManager):
             raise ValueError(_("Superuser must have is_superuser=True."))
 
         return self.create_user(correo, password, **extra_fields)
+
+    def create(self, correo, password, **extra_fields):
+        if not correo:
+            raise ValueError(_("The email must be set"))
+
+        user = self.model(correo=correo, **extra_fields)
+        user.set_password(password)
+        user.save()
+
+        return user

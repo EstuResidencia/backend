@@ -9,12 +9,6 @@ class Publicacion(models.Model):
         (4, "RECHAZADA"),
     ]
 
-    TIPO_RESIDENCIA_CHOICES = [
-        (1, "APARTAMENTO"),
-        (2, "CASA"),
-        (3, "HABITACION"),
-    ]
-
     COMUNA_CHOICES = [
         (1, "POPULAR"),
         (2, "SANTA CRUZ"),
@@ -59,16 +53,11 @@ class Publicacion(models.Model):
         default=1
     )
     direccion = models.CharField(max_length=100)
-    tipo_residencia = models.IntegerField(
-        choices=TIPO_RESIDENCIA_CHOICES
-    )
     canon_cop = models.IntegerField()
     area_m2 = models.IntegerField()
-    habitaciones = models.IntegerField(default=1)
     piso = models.IntegerField(default=1)
     comuna = models.IntegerField(choices=COMUNA_CHOICES)
     estado_cambiado = models.BooleanField(default=True)
-
 
     class Meta:
         constraints = [
@@ -77,7 +66,7 @@ class Publicacion(models.Model):
                 name="valid_estado_publicacion",
             ),
             models.CheckConstraint(
-                check=(models.Q(tipo_residencia__in=[1, 2, 3])),
-                name="valid_tipo_residencia",
+                check=(models.Q(comuna__in=[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16])),
+                name="valid_comuna",
             )
         ]
