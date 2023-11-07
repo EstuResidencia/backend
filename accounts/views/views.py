@@ -52,8 +52,7 @@ def delete_update_user(request, usuario_id: int) -> JsonResponse:
                     )
             user.save()
             user_serializer = UserSerializer(user)
-            data: dict = {"message": "User updated successfully"}
-            data.update(user_serializer.data)
+            data: dict = {"message": "User updated successfully", "usuario": user_serializer.data}
             return JsonResponse(data=data, status=status.HTTP_200_OK)
 
         elif request.method == "DELETE":
