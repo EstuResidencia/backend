@@ -1,5 +1,4 @@
 from django.test import TestCase
-from django.urls import reverse
 from rest_framework.test import APIClient
 
 from ..models.solicitud import Solicitud
@@ -84,3 +83,185 @@ class CreateSolicitudTestCase(TestCase):
         response2 = self.client.post("/solicitud/", solicitud_data, format='json')
 
         self.assertEqual(response2.status_code, 400)  # 400 Bad Request
+
+
+class ReadUpdateDeleteSolicitudTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create(
+            nombre="Calypso",
+            correo="calypso@unal.edu.co",
+            celular="310495520",
+            password="calypso"
+        )
+        self.arrendador = User.objects.create(
+            nombre="Carlitos",
+            correo="carlitos@gmail.com",
+            celular="3104153021",
+            password="carlitos"
+        )
+        self.client.force_authenticate(self.user)
+        self.publicacion = Publicacion.objects.create(
+            usuario=self.arrendador,
+            descripcion="Publicacion de prueba",
+            direccion="Calle 123",
+            canon_cop=1000000,
+            area_m2=100,
+            piso=1,
+            comuna=1
+        )
+        # Crear una solicitud de ejemplo para las pruebas
+        self.solicitud = Solicitud.objects.create(
+            usuario=self.user,
+            publicacion=self.publicacion,
+        )
+
+    # GET
+    def test_get_solicitud_correct(self):
+        # Realiza una solicitud GET para obtener los detalles de la solicitud creada
+        response = self.client.get(f"/solicitud/{self.solicitud.id}/")
+
+        self.assertEqual(response.status_code, 200)  # 200 OK
+        self.assertEqual(response.data['usuario'], self.user.id)  # Verifica los detalles de la solicitud
+
+    def test_get_solicitud_not_found(self):
+        # Intenta obtener detalles de una solicitud inexistente
+        response = self.client.get("/solicitud/999/")  # ID inexistente
+
+        self.assertEqual(response.status_code, 404)  # 404 Not Found
+        self.assertEqual(response.data['message'], "Solicitud no existe")
+
+    # PATCH
+    def test_update_solicitud_correct(self):
+        # Datos de ejemplo para la solicitud PATCH
+        updated_data = {
+            "estado": 2,
+            "pagado": True,
+        }
+
+        # Realiza una solicitud PATCH para actualizar la solicitud
+        response = self.client.patch(f"/solicitud/{self.solicitud.id}/", updated_data, format='json')
+
+        self.assertEqual(response.status_code, 200)  # 200 OK
+        self.assertEqual(response.data['solicitud']['estado'], 2)  # Verifica el estado actualizado
+        self.assertEqual(response.data['solicitud']['pagado'], True)  # Verifica pagado actualizado
+
+    def test_update_solicitud_not_found(self):
+        # Intenta actualizar una solicitud que no existe
+        updated_data = {
+            "estado": 2,
+            "pagado": True,
+        }
+
+        response = self.client.patch("/solicitud/999/", updated_data, format='json')  # ID inexistente
+
+        self.assertEqual(response.status_code, 404)  # 404 Not Found
+        self.assertEqual(response.data['message'], "Solicitud no existe")
+
+    # DELETE
+
+    def test_delete_solicitud_correct(self):
+        # Realiza una solicitud DELETE para eliminar la solicitud
+        response = self.client.delete(f"/solicitud/{self.solicitud.id}/")
+
+        self.assertEqual(response.status_code, 200)  # 200 OK
+        self.assertEqual(response.data['message'], "Solicitud fue eliminada exitosamente")
+        with self.assertRaises(Solicitud.DoesNotExist):
+            self.solicitud.refresh_from_db()
+
+    def test_delete_solicitud_not_found(self):
+        # Intenta eliminar una solicitud que no existe
+        response = self.client.delete("/solicitud/999/")  # ID inexistente
+
+        self.assertEqual(response.status_code, 404)  # 404 Not Found
+        self.assertEqual(response.data['message'], "Solicitud no existe")
+
+
+class ListSolicitudByEstudianteTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create(
+            nombre="Calypso",
+            correo="calypso@unal.edu.co",
+            celular="310495520",
+            password="calypso"
+        )
+        self.client.force_authenticate(self.user)
+
+        # Crear una solicitud de ejemplo para las pruebas
+        self.publicacion = Publicacion.objects.create(
+            usuario=self.user,
+            descripcion="Publicacion de prueba",
+            direccion="Calle 123",
+            canon_cop=1000000,
+            area_m2=100,
+            piso=1,
+            comuna=1
+        )
+        self.solicitud = Solicitud.objects.create(
+            usuario=self.user,
+            publicacion=self.publicacion,
+            estado=2  # Estado 2 para simular una solicitud diferente
+        )
+
+    def test_get_solicitudes_estudiante_correct(self):
+        # Realiza una solicitud GET para obtener todas las solicitudes asociadas al estudiante (usuario)
+        response = self.client.get(f"/solicitud/estudiante/{self.user.id}/")
+
+        self.assertEqual(response.status_code, 200)  # 200 OK
+        self.assertTrue(len(response.data) > 0)  # Verifica que al menos una solicitud se haya devuelto
+
+    def test_get_solicitudes_estudiante_not_found(self):
+        # Intenta obtener solicitudes para un estudiante (usuario) inexistente
+        response = self.client.get("/solicitud/estudiante/999/")  # ID de estudiante inexistente
+
+        self.assertEqual(response.status_code, 404)  # 404 Not Found
+        self.assertEqual(response.data['message'], "Estudiante no existe")
+
+
+class ListSolicitudByArrendadorTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create(
+            nombre="Calypso",
+            correo="calypso@unal.edu.co",
+            celular="310495520",
+            password="calypso"
+        )
+        self.arrendador = User.objects.create(
+            nombre="Carlitos",
+            correo="carlitos@gmail.com",
+            celular="3104153021",
+            password="carlitos"
+        )
+        self.client.force_authenticate(self.user)
+
+        # Crear una solicitud de ejemplo para las pruebas
+        self.publicacion = Publicacion.objects.create(
+            usuario=self.arrendador,
+            descripcion="Publicacion de prueba",
+            direccion="Calle 123",
+            canon_cop=1000000,
+            area_m2=100,
+            piso=1,
+            comuna=1
+        )
+        self.solicitud = Solicitud.objects.create(
+            usuario=self.user,
+            publicacion=self.publicacion,
+            estado=1  # Estado 1 para simular una solicitud diferente
+        )
+
+    def test_get_solicitudes_arrendador_correct(self):
+        # Realiza un GET para obtener todas las solicitudes asociadas a todas las publicaciones del arrendador
+        response = self.client.get(f"/solicitud/arrendador/{self.arrendador.id}/")
+
+        self.assertEqual(response.status_code, 200)  # 200 OK
+        self.assertTrue(len(response.data) > 0)  # Verifica que al menos una solicitud se haya devuelto
+
+    def test_get_solicitudes_arrendador_not_found(self):
+        # Intenta obtener solicitudes para un arrendador inexistente
+        response = self.client.get("/solicitud/arrendador/999/")  # ID de arrendador inexistente
+
+        self.assertEqual(response.status_code, 404)  # 404 Not Found
+        self.assertEqual(response.data['message'], "Arrendador no existe")
