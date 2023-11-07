@@ -109,6 +109,76 @@ class LoginTestCase(TestCase):
         )
 
 
+class DeleteUpdateUserTestCase(TestCase):
+    def setUp(self):
+        self.client = APIClient()
+        self.user = User.objects.create(
+            nombre="Cassandra",
+            correo="cassandra@unal.edu.co",
+            celular="310495520",
+            password="cassandra"
+        )
+        self.new_data = {
+            "tipo_documento": "CC",
+            "documento": 1001031722,
+            "validado": True,
+            "rol": 2
+        }
+
+    def test_update_user_correct(self):
+        response = self.client.patch(path=f"/usuario/{self.user.usuario_id}/", data=self.new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            User.objects.last().rol,
+            2
+        )
+
+    def test_update_user_nonexistent(self):
+        response = self.client.patch(path="/usuario/100/", data=self.new_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(
+            loads(response.content),
+            {
+                "message": "User does not exist"
+            }
+        )
+
+    def test_update_field_nonexistent(self):
+        invalid_data = {
+            "nickname": "Cali",
+            "tipo_documento": "CC",
+            "documento": 1001031722,
+            "validado": True,
+            "rol": 2
+        }
+        response = self.client.patch(path=f"/usuario/{self.user.usuario_id}/", data=invalid_data, format="json")
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(
+            loads(response.content),
+            {
+                "message": "nickname attribute does not exist"
+            }
+        )
+
+    def test_delete_user_correct(self):
+        response = self.client.delete(path=f"/usuario/{self.user.usuario_id}/")
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            User.objects.count(),
+            0
+        )
+
+    def test_delete_user_nonexistent(self):
+        response = self.client.delete(path="/usuario/100/")
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+        self.assertEqual(
+            loads(response.content),
+            {
+                "message": "User does not exist"
+
+            }
+        )
+
 class LogoutTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
