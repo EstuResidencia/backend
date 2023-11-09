@@ -6,7 +6,7 @@ from rest_framework.test import APIClient
 from json import loads
 
 from accounts.models import User
-from ..models import Solicitud
+from ..models import Solicitud, Resena
 from ..models.imagen import Imagen
 from ..models.publicacion import Publicacion
 
@@ -47,6 +47,13 @@ class CreateReadResenaTestCase(TestCase):
                 area_m2=25,
                 piso=1
                 )
+        self.resena_creada = Resena.objects.create(
+                usuario=self.resenador,
+                publicacion=self.publicacion,
+                comentario="Interesante habitación.",
+                calificacion=7,
+                )
+
         self.resena_correcta: dict = {
                 "usuario": self.resenador.pk,
                 "comentario": "Muy buena habitación, muy agradable.",
@@ -67,13 +74,13 @@ class CreateReadResenaTestCase(TestCase):
         response2 = self.client.post(path=f"/resena/{self.publicacion.id}/", data=self.resena_correcta_2)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response2.status_code, status.HTTP_201_CREATED)
-        self.assertEqual(self.publicacion.resenas.count(), 2)
+        self.assertEqual(self.publicacion.resenas.count(), 3)
         self.assertEqual(datetime.date.today(), self.publicacion.resenas.first().fecha)
 
     def test_read_resenas_correct(self):
         response = self.client.get(path=f"/resena/{self.publicacion.id}/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(loads(response.content)), 2)
+        self.assertEqual(len(loads(response.content)), 1)
 
     def test_read_resenas_incorrect(self):
         response = self.client.get(path=f"/resena/100/")
@@ -137,19 +144,20 @@ class NotificationSignalTestCase(TestCase):
                             "canon_cop": 850000,
                             "area_m2": 35,
                             "piso": 19,
+                            "calificacion": 8,
                             "estado_cambiado": True,
                             "imagenes": [
                                     {
                                         "id": 1,
                                         "publicacion": self.publicacion_2.pk,
                                         "data": "aaxvhnj",
-                                        "fecha": datetime.date.today()
+                                        "fecha": datetime.date.today().strftime("%Y-%m-%d")
                                     },
                                     {
                                         "id": 2,
                                         "publicacion": self.publicacion_2.pk,
                                         "data": "\xde\xaa\xbaxv",
-                                        "fecha": datetime.date.today()
+                                        "fecha": datetime.date.today().strftime("%Y-%m-%d")
                                     }
                             ]
                         }
@@ -159,17 +167,32 @@ class NotificationSignalTestCase(TestCase):
                             "id": self.solicitud.pk,
                             "usuario": self.user.pk,
                             "publicacion": self.publicacion_2.pk,
-                            "estado": "pendiente",
+                            "estado": 1,
                             "pagado": False,
-                            "fecha": datetime.date.today(),
+                            "fecha": datetime.date.today().strftime("%Y-%m-%d"),
                             "estado_cambiado": True
                         }
                 ]
         }
 
+        self.resena_creada: Resena = Resena.objects.create(
+                usuario=self.user,
+                publicacion=self.publicacion_2,
+                comentario="Interesante habitación.",
+                calificacion=8,
+                )
+        self.resena_creada_2: Resena = Resena.objects.create(
+                usuario=self.user,
+                publicacion=self.publicacion_2,
+                comentario="Interesante habitación.",
+                calificacion=9,
+                )
+        # self.maxDiff = None
+
     def test_get_notification_signal_data(self):
         self.publicacion_1.estado_cambiado = False
         self.publicacion_1.save()
+
         response = self.client.get(path=f"/notification-signal/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
