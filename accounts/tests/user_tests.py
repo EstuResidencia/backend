@@ -1,5 +1,5 @@
 from django.test import TestCase
-from rest_framework.test import APIClient, RequestsClient
+from rest_framework.test import APIClient
 from rest_framework import status
 from json import loads
 
@@ -199,7 +199,7 @@ class LogoutTestCase(TestCase):
             {"message": "User logged out successfully"}
         )
 
-    def test_logout_unauthorized(self):
+    def test_logout_unauthenticated(self):
         self.client.logout()
         response = self.client.post(path="/logout/")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
