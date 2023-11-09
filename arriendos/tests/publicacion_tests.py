@@ -2,10 +2,11 @@ from django.test import TestCase
 from rest_framework import status
 from rest_framework.test import APIClient
 from json import loads
-from datetime import datetime
+from datetime import date
 
 from accounts.models import User
 from ..models import Publicacion, Imagen
+from ..serializers.publicacion_serializer import PublicacionSerializer
 
 
 class CreateReadPublicacionTestCase(TestCase):
@@ -20,7 +21,7 @@ class CreateReadPublicacionTestCase(TestCase):
             rol=1
         )
         self.publicacion_data: dict = {
-            "usuario": self.user.usuario_id,
+            "usuario": self.arrendador.usuario_id,
             "descripcion": "Hogar con ambiente familiar.",
             "direccion": "Calle 30 #35-42",
             "comuna": 11,
@@ -28,8 +29,8 @@ class CreateReadPublicacionTestCase(TestCase):
             "area_m2": 30,
             "piso": 1,
             "imagenes": [
-                "\xdeadbeef",
-                "\xdeaaxvhnj",
+                "xdeadbeef",
+                "xdeaaxvhnj",
             ]
         }
         self.correct_response: dict = {
@@ -45,12 +46,26 @@ class CreateReadPublicacionTestCase(TestCase):
                 "canon_cop": 800000,
                 "area_m2": 30,
                 "piso": 1,
+                "estado_cambiado": True,
                 "calificacion": 0,
-                "estado_cambiado": True
+                "imagenes": [
+                    {
+                        "id": 1,
+                        "publicacion": self.arrendador.usuario_id,
+                        "data": "xdeadbeef",
+                        "fecha": date.today().strftime("%Y-%m-%d"),
+                    },
+                    {
+                        "id": 2,
+                        "publicacion": self.arrendador.usuario_id,
+                        "data": "xdeaaxvhnj",
+                        "fecha": date.today().strftime("%Y-%m-%d"),
+                    }
+                ]
             }
         }
         self.correct_response2: dict = {
-            "id": 1,
+            "id": 2,
             "usuario": self.arrendador.usuario_id,
             "inquilino": None,
             "descripcion": "Hogar con ambiente familiar.",
@@ -64,17 +79,17 @@ class CreateReadPublicacionTestCase(TestCase):
             "calificacion": 0,
             "imagenes": [
                 {
-                   "id": 1,
-                   "publicacion_id": 1,
-                   "data": "\xdeadbeef",
-                   "fecha": datetime.date.today().strftime("%Y-%m-%d")
-                 },
-                 {
-                   "id": 2,
-                   "publicacion_id": 1,
-                   "data": "\xdeaaxvhnj",
-                   "fecha": datetime.date.today().strftime("%Y-%m-%d")
-                 }
+                   "id": 3,
+                   "publicacion": 2,
+                   "data": "xdeadbeef",
+                   "fecha": date.today().strftime("%Y-%m-%d")
+                },
+                {
+                   "id": 4,
+                   "publicacion": 2,
+                   "data": "xdeaaxvhnj",
+                   "fecha": date.today().strftime("%Y-%m-%d")
+                }
             ]
         }
 
@@ -94,16 +109,16 @@ class CreateReadPublicacionTestCase(TestCase):
 
     def test_create_required_field(self):
         new_publicacion_data: dict = {
-            "usuario": self.user.usuario_id,
+            "usuario": self.arrendador.usuario_id,
             "direccion": "Calle 30 #35-42",
             "comuna": 11,
             "canon_cop": 800000,
             "area_m2": 30,
             "piso": 1,
             "imagenes": [
-                "\xdeadbeef",
-                "\xdeaaxvhnj",
-                "\xdeasfvghyvl",
+                "xdeadbeef",
+                "xdeaaxvhnj",
+                "xdeasfvghyvl",
             ]
         }
         response = self.client.post(
@@ -122,7 +137,9 @@ class CreateReadPublicacionTestCase(TestCase):
         )
 
     def test_read_correct(self):
-        Publicacion.objects.create(**self.publicacion_data)
+        serializer: PublicacionSerializer = PublicacionSerializer(data=self.publicacion_data)
+        serializer.is_valid()
+        serializer.save()
         response = self.client.get(path="/publicacion/")
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
@@ -215,7 +232,7 @@ class ReadPublicacionByArrendadorTestCase(TestCase):
         )
         self.imagen: Imagen = Imagen.objects.create(
             publicacion=self.publicacion,
-            data=bytes("\xdeadbeef", "UTF-8"),
+            data=bytes("xdeadbeef", "UTF-8"),
         )
         self.correct_response: dict = {
             "id": self.publicacion.id,
@@ -228,14 +245,14 @@ class ReadPublicacionByArrendadorTestCase(TestCase):
             "canon_cop": 800000,
             "area_m2": 30,
             "piso": 1,
-            "calificacion": 8,
+            "calificacion": 0,
             "estado_cambiado": True,
             "imagenes": [
                 {
-                    "id": 1,
+                    "id": self.imagen.id,
                     "publicacion": self.publicacion.id,
-                    "data": "\xdeadbeef",
-                    "fecha": datetime.date.today().strftime("%Y-%m-%d")
+                    "data": "xdeadbeef",
+                    "fecha": date.today().strftime("%Y-%m-%d")
                 },
             ]
         }
@@ -243,7 +260,7 @@ class ReadPublicacionByArrendadorTestCase(TestCase):
 
     def test_read_correct(self):
         response = self.client.get(
-            path=f"/publicacion/listar/{self.arrendador.id}/",
+            path=f"/publicacion/listar/{self.arrendador.usuario_id}/",
         )
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(
@@ -256,10 +273,5 @@ class ReadPublicacionByArrendadorTestCase(TestCase):
             path="/publicacion/listar/10000/",
         )
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
-        self.client(
-            loads(response.content),
-            {
-                "message": "Publicacion no existe"
-            }
-        )
+        self.assertEqual(loads(response.content)["message"], "Arrendador no existe")
 
