@@ -148,13 +148,13 @@ class NotificationSignalTestCase(TestCase):
                             "estado_cambiado": True,
                             "imagenes": [
                                     {
-                                        "id": 1,
+                                        "id": self.imagen_1.id,
                                         "publicacion": self.publicacion_2.pk,
                                         "data": "aaxvhnj",
                                         "fecha": datetime.date.today().strftime("%Y-%m-%d")
                                     },
                                     {
-                                        "id": 2,
+                                        "id": self.imagen_2.id,
                                         "publicacion": self.publicacion_2.pk,
                                         "data": "\xde\xaa\xbaxv",
                                         "fecha": datetime.date.today().strftime("%Y-%m-%d")
