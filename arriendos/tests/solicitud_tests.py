@@ -256,7 +256,7 @@ class ListSolicitudByArrendadorTestCase(TestCase):
 
     def test_get_solicitudes_arrendador_correct(self):
         # Realiza un GET para obtener todas las solicitudes asociadas a todas las publicaciones del arrendador
-        response = self.client.get(f"/solicitud/arrendador/{self.arrendador.id}/")
+        response = self.client.get(f"/solicitud/arrendador/{self.arrendador.pk}/")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)  # 200 OK
         self.assertTrue(len(loads(response.content)) > 0)  # Verifica que al menos una solicitud se haya devuelto

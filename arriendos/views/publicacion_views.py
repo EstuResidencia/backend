@@ -5,7 +5,6 @@ from rest_framework import status
 from accounts.models import User
 from arriendos.models import Publicacion
 from arriendos.serializers.publicacion_serializer import PublicacionSerializer
-import json
 
 
 @api_view(["GET", "POST"])
@@ -64,7 +63,7 @@ def update_delete_publicacion(request, publicacion_id: int) -> JsonResponse:
 def read_publicacion_by_arrendador(request, arrendador_id: int) -> JsonResponse:
     try:
         arrendador: User = User.objects.get(pk=arrendador_id)
-        publicaciones: list = PublicacionSerializer(arrendador.publicaciones.all(), many=True)
+        publicaciones = PublicacionSerializer(arrendador.publicaciones.all(), many=True)
 
         return JsonResponse(
             data=publicaciones.data,
