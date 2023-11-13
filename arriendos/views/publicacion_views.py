@@ -23,8 +23,8 @@ def create_read_publicacion(request) -> JsonResponse:
         return JsonResponse(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-@api_view(["PATCH", "DELETE"])
-def update_delete_publicacion(request, publicacion_id: int) -> JsonResponse:
+@api_view(["PATCH", "DELETE", "GET"])
+def update_delete_get_publicacion(request, publicacion_id: int) -> JsonResponse:
     try:
         publicacion: Publicacion = Publicacion.objects.get(pk=publicacion_id)
 
@@ -53,6 +53,14 @@ def update_delete_publicacion(request, publicacion_id: int) -> JsonResponse:
                 data={"message": "Publicacion fue eliminada exitosamente"},
                 status=status.HTTP_200_OK
             )
+
+        elif request.method == "GET":
+            serializer = PublicacionSerializer(publicacion)
+            return JsonResponse(
+                data=serializer.data,
+                status=status.HTTP_200_OK
+            )
+
     except Publicacion.DoesNotExist:
         return JsonResponse(
             {"message": "Publicacion no existe"},
