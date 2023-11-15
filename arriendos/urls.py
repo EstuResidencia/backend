@@ -15,7 +15,7 @@ publicacion_urls = [
          publicacion_views.create_read_publicacion,
          name="create_read_publicacion"),
     path("publicacion/<int:publicacion_id>/",
-         publicacion_views.update_delete_publicacion,
+         publicacion_views.update_delete_get_publicacion,
          name="update_delete_publicacion"),
     path("publicacion/listar/<int:arrendador_id>/",
          publicacion_views.read_publicacion_by_arrendador,
